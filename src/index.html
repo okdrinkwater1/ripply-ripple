@@ -9,6 +9,7 @@
             margin:0;
             height:100%;
             background:#111;
+            overflow:hidden;
         }
         body{
             margin:0;
@@ -21,24 +22,82 @@
             background:#000;
             cursor:crosshair;
             touch-action:none;
-            max-width:95vw;
+            display:block;
+        }
+        .slider{
+            position:fixed;
+            top:12px;
+            left:12px;
+            padding:10px 14px;
+            background:rgba(0,0,0,0.55);
+            border:1px solid #444;
+            border-radius:8px;
+            color:#ddd;
+            font-family:sans-serif;
+            font-size:13px;
+        }
+        .slider label{
+            display:block;
+            margin-bottom:10px;
+        }
+        .slider label:last-child{
+            margin-bottom:0;
+        }
+        .slider input{
+            display:block;
+            width:180px;
+            margin-top:4px;
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas" width="1200" height="800"></canvas>
+    <canvas id="canvas"></canvas>
+    <div class="slider">
+        <label>
+            Dampening: <span id="dampeningValue">0.990</span>
+            <input id="dampeningSlider" type="range" min="0.9" max="1" step="0.001" value="0.99">
+        </label>
+        <label>
+            Drop strength: <span id="strengthValue">2500</span>
+            <input id="strengthSlider" type="range" min="500" max="10000" step="100" value="2500">
+        </label>
+    </div>
     <script>
         const canvas=document.getElementById('canvas');
         const ctx=canvas.getContext('2d');
-        const col=canvas.width;
-        const row=canvas.height;
-        const dampening=0.99;
-        const dropStrength=2500;
-        let current=new Float32Array(col*row);
-        let previous=new Float32Array(col*row);
-        const imageData=ctx.createImageData(col,row);
-        const pixel=imageData.data;
+        let col=0;
+        let row=0;
+        let current;
+        let previous;
+        let imageData;
+        let pixel;
+        let dampening=0.99;
+        let dropStrength=2500;
         let dragging=false;
+        function resizeCanvas(){
+            canvas.width=window.innerWidth;
+            canvas.height=window.innerHeight;
+            col=canvas.width;
+            row=canvas.height;
+            current=new Float32Array(col*row);
+            previous=new Float32Array(col*row);
+            imageData=ctx.createImageData(col,row);
+            pixel=imageData.data;
+        }
+        resizeCanvas();
+        window.addEventListener('resize',resizeCanvas);
+        const dampeningSlider=document.getElementById('dampeningSlider');
+        const dampeningValue=document.getElementById('dampeningValue');
+        const strengthSlider=document.getElementById('strengthSlider');
+        const strengthValue=document.getElementById('strengthValue');
+        dampeningSlider.addEventListener('input',function(){
+            dampening=parseFloat(dampeningSlider.value);
+            dampeningValue.textContent=dampening.toFixed(3);
+        });
+        strengthSlider.addEventListener('input',function(){
+            dropStrength=parseFloat(strengthSlider.value);
+            strengthValue.textContent=dropStrength;
+        });
         function addDrop(e){
         const rect=canvas.getBoundingClientRect();
         const x=Math.floor((e.clientX-rect.left)*(col/rect.width));

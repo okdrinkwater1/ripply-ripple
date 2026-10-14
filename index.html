@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ripple</title>
+    <style>
+        html{
+            margin:0;
+            height:100%;
+            background:#111;
+        }
+        body{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+        canvas{
+            background:#000;
+            cursor:crosshair;
+            touch-action:none;
+            max-width:95vw;
+        }
+    </style>
+    <canvas id="canvas" width="600" height="400"></canvas>
+    <script>
+        const canvas=document.getElementById('canvas');
+        const ctx=canvas.getContext('2d');
+        const col=canvas.width;
+        const row=canvas.height;
+        const dampening=0.99;
+        const dropStrength=2500;
+        let current=new Float32Array(col*row);
+        let previous=new Float32Array(col*row);
+        const imageData=ctx.createImageData(col,row);
+        const pixel=imageData.data;
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

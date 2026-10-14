@@ -1,4 +1,4 @@
-# RIPPLE
+# RIPPLY RIPPLE
 water ripple simulation that runs in your browser address bar, uses js to create the simulation. click or drag on the canvas to create ripples.
 
 <img src="ripple.png" width="400">

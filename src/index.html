@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ripple</title>
+    <style>
+        html{
+            margin:0;
+            height:100%;
+            background:#111;
+        }
+        body{
+            margin:0;
+            height:100%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+        canvas{
+            background:#000;
+            cursor:crosshair;
+            touch-action:none;
+            max-width:95vw;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="1200" height="800"></canvas>
+    <script>
+        const canvas=document.getElementById('canvas');
+        const ctx=canvas.getContext('2d');
+        const col=canvas.width;
+        const row=canvas.height;
+        const dampening=0.99;
+        const dropStrength=2500;
+        let current=new Float32Array(col*row);
+        let previous=new Float32Array(col*row);
+        const imageData=ctx.createImageData(col,row);
+        const pixel=imageData.data;
+        let dragging=false;
+        function addDrop(e){
+        const rect=canvas.getBoundingClientRect();
+        const x=Math.floor((e.clientX-rect.left)*(col/rect.width));
+        const y=Math.floor(((e.clientY-rect.top))*(row/rect.height));
+        const boundary=x>0&&x<col-1&&y>0&&y<row-1;
+        if(boundary){
+            previous[x+y*col]=dropStrength;
+        }
+    }
+    canvas.addEventListener('pointermove',function(e){
+        if(dragging){
+            addDrop(e);
+        }
+    });
+    window.addEventListener('pointerup',function(){
+        dragging=false;
+    });
+    canvas.addEventListener('pointerdown',function(e){
+        dragging=true;
+        addDrop(e);
+    });
+    function updateWaves(){
+        for(let y=1;y<row-1;y++){
+            for(let x=1;x<col-1;x++){
+            const index=x+y*col;
+            const left=previous[index-1];
+            const right=previous[index+1];
+            const up=previous[index-col];
+            const down=previous[index+col];
+            let value=(left+right+up+down)/2-current[index];
+            value=value*dampening;
+            current[index]=value;
+        }
+    }
+}
+    function drawWaves(){
+        for(let i=0;i<col*row;i++){
+            const p=i*4;
+            pixel[p]=current[i];
+            pixel[p+1]=current[i];
+            pixel[p+2]=current[i];
+            pixel[p+3]=255;
+        }
+        ctx.putImageData(imageData,0,0);
+    }
+    function swapBuffers(){
+        const temp=previous;
+        previous=current;
+        current=temp;
+    }
+    function loop(){
+        updateWaves();
+        drawWaves();
+        swapBuffers();
+        requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+    </script>
+</body>
+</html>
